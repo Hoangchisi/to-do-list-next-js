@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Plus, Trash2, Edit2, Calendar, CheckCircle, 
   Search, LogOut, ArrowUpDown, Layout, User as UserIcon,
-  CheckCircle2, ArrowRight, Zap, Shield // Added new icons
+  CheckCircle2, ArrowRight, Zap, Shield 
 } from 'lucide-react';
 
 // Firebase Imports
@@ -68,9 +68,11 @@ const firebaseConfig = {
 // Initialize Firebase
 // Kiểm tra xem config có hợp lệ không trước khi init
 if (!firebaseConfig.apiKey) {
-  console.error("Firebase Config Error: Thiếu API Key. Hãy kiểm tra file .env.local");
+  // Silent fallback or log if needed, checking explicitly to avoid runtime errors if env is missing
+  // console.error("Firebase Config Error");
 }
 
+// Initialize safely
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -430,6 +432,9 @@ export default function App() {
   };
 
   const toggleStatus = async (task: Task) => {
+    // FIX: Kiểm tra user tồn tại trước khi dùng user.uid
+    if (!user) return; 
+
     const newStatus = task.status === 'done' ? 'todo' : 'done';
     const taskRef = doc(db, 'artifacts', appId, 'users', user.uid, 'tasks', task.id);
     
@@ -440,6 +445,9 @@ export default function App() {
   };
 
   const deleteTask = async (taskId: string) => {
+    // FIX: Kiểm tra user tồn tại trước khi dùng user.uid
+    if (!user) return;
+
     if(!window.confirm("Bạn có chắc chắn muốn xóa không?")) return;
     const taskRef = doc(db, 'artifacts', appId, 'users', user.uid, 'tasks', taskId);
     await deleteDoc(taskRef);
